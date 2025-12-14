@@ -61,9 +61,9 @@ const progs = ["procA.nim", "procB.nim"]
 const opts = {poUsePath, poDaemon, poStdErrToStdOut}
 var ps: seq[Process]
 
-# #run 2 programs in parallel
+#run 2 programs in parallel
 echo "Starting programs in parallel..."
-for prog in progs: # run 2 progs in parallel
+for prog in progs:
   ps.add startProcess("nim", "", ["r", prog], nil, opts)
 
 echo "\nWaiting for programs to complete..."
