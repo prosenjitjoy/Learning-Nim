@@ -44,6 +44,41 @@ assert osErrorMsg(OSErrorCode(0)) == ""
 assert osErrorMsg(OSErrorCode(1)) == "Operation not permitted"
 assert osErrorMsg(OSErrorCode(2)) == "No such file or directory"
 
+## osproc
+import std/osproc
+import std/strtabs
+
+echo execCmd("nim r unittest.nim")
+
+assert execCmdEx("ls --nonexistent").exitCode != 0
+assert execCmdEx("echo $FO", env = newStringTable({"FO": "B"})) == ("B\n", 0)
+assert execCmdEx("echo $PWD", workingDir = "/") == ("/\n", 0)
+
+let outp_shell = execProcess("ls", args = ["-a", "-l", "-H"], options = {poUsePath})
+echo outp_shell
+
+const progs = ["procA.nim", "procB.nim"]
+const opts = {poUsePath, poDaemon, poStdErrToStdOut}
+var ps: seq[Process]
+
+# #run 2 programs in parallel
+echo "Starting programs in parallel..."
+for prog in progs: # run 2 progs in parallel
+  ps.add startProcess("nim", "", ["r", prog], nil, opts)
+
+echo "\nWaiting for programs to complete..."
+for i, p in ps:
+  let (lines, exCode) = p.readLines()
+  echo "\nOutput from Program: ", progs[i]
+
+  if exCode != 0:
+    echo "Program exited with error: ", exCode
+  for line in lines:
+    echo line
+  p.close
+
+echo "\nAll processes completed!"
+
 ## streams
 import std/streams
 
